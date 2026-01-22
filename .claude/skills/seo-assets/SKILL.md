@@ -34,6 +34,24 @@ Scans codebase for logo, generates all sizes, creates manifest files.
 /seo-assets src/assets/brand.png
 ```
 
+## Quick Generate (Script)
+
+Run the generator script directly:
+
+```bash
+# Auto-detect logo, generate all assets
+uv run "$CLAUDE_PROJECT_DIR"/.claude/hooks/seo/lib/generate_assets.py
+
+# Specify logo and color
+uv run "$CLAUDE_PROJECT_DIR"/.claude/hooks/seo/lib/generate_assets.py \
+  --logo public/logo.svg \
+  --color "#3B82F6" \
+  --name "My Site"
+
+# Output JSON for automation
+uv run "$CLAUDE_PROJECT_DIR"/.claude/hooks/seo/lib/generate_assets.py --json
+```
+
 ## Generated Assets
 
 ### Favicons (public/)
@@ -111,16 +129,64 @@ Scans codebase for logo, generates all sizes, creates manifest files.
    {
      "name": "Site Name",
      "short_name": "Site",
-     "icons": [
-       { "src": "/android-chrome-192x192.png", "sizes": "192x192", "type": "image/png" },
-       { "src": "/android-chrome-512x512.png", "sizes": "512x512", "type": "image/png" },
-       { "src": "/maskable-icon-512x512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
-     ],
+     "description": "Brief description of your site or app",
+     "start_url": "/",
+     "scope": "/",
+     "display": "standalone",
+     "orientation": "portrait-primary",
+     "lang": "en",
      "theme_color": "#3B82F6",
      "background_color": "#ffffff",
-     "display": "standalone"
+     "categories": ["business", "productivity"],
+     "icons": [
+       {
+         "src": "/android-chrome-192x192.png",
+         "sizes": "192x192",
+         "type": "image/png",
+         "purpose": "any"
+       },
+       {
+         "src": "/android-chrome-512x512.png",
+         "sizes": "512x512",
+         "type": "image/png",
+         "purpose": "any"
+       },
+       {
+         "src": "/maskable-icon-512x512.png",
+         "sizes": "512x512",
+         "type": "image/png",
+         "purpose": "maskable"
+       }
+     ],
+     "shortcuts": [
+       {
+         "name": "Main Feature",
+         "short_name": "Feature",
+         "description": "Quick access to main feature",
+         "url": "/feature",
+         "icons": [{ "src": "/android-chrome-192x192.png", "sizes": "192x192" }]
+       }
+     ]
    }
    ```
+
+   **Manifest Fields:**
+
+   | Field | Required | Description |
+   |-------|----------|-------------|
+   | name | Yes | Full app name |
+   | short_name | Yes | Short name for home screen |
+   | description | Yes | App description |
+   | start_url | Yes | Entry point URL |
+   | scope | Recommended | Navigation scope |
+   | display | Yes | standalone, fullscreen, minimal-ui, browser |
+   | orientation | Recommended | portrait-primary, landscape-primary, any |
+   | lang | Recommended | Language code (en, es, etc.) |
+   | theme_color | Yes | Browser chrome color |
+   | background_color | Yes | Splash screen background |
+   | categories | Recommended | App store categories |
+   | icons | Yes | App icons with purpose |
+   | shortcuts | Recommended | Quick action links |
 
 4. **Create browserconfig.xml**
    ```xml
@@ -189,7 +255,9 @@ Requires one of:
 | ASSET003 | error | Missing apple-touch-icon |
 | ASSET004 | error | Missing android icons |
 | ASSET005 | error | Missing og-image |
-| ASSET006 | error | Invalid manifest JSON |
+| ASSET006 | error | Invalid manifest JSON or missing required field |
 | ASSET007 | warning | Missing maskable icon |
 | ASSET008 | warning | Image wrong dimensions |
 | ASSET009 | warning | Missing browserconfig.xml |
+| ASSET010 | warning | Missing recommended manifest field |
+| ASSET011 | warning | No icon with purpose 'any' |

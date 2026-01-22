@@ -3,11 +3,6 @@ name: seo
 model: opus
 description: Full SEO implementation. Orchestrates meta, schema, ai, perf skills.
 argument-hint: "[command] [framework]"
-hooks:
-  Stop:
-    - hooks:
-        - type: command
-          command: "uv run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/seo/generate_report.py"
 ---
 
 # SEO Orchestrator
@@ -19,7 +14,7 @@ FRAMEWORK: $2 (astro, vite, tanstack, nextjs, auto)
 
 ## Instructions
 
-Implement SEO by invoking the appropriate skill(s).
+Implement SEO by invoking the appropriate skill(s). STOP after outputting the final report.
 
 ## Workflow
 
@@ -30,11 +25,12 @@ Implement SEO by invoking the appropriate skill(s).
    - `ai` → /seo-ai llms-txt
    - `perf` → /seo-perf all
    - `sitemap` → /seo-sitemap FRAMEWORK
-   - `assets` → /seo-assets (generate favicons, OG images, etc.)
-   - `validate` → /seo-validate http://localhost:4321
+   - `assets` → Run: `uv run "$CLAUDE_PROJECT_DIR"/.claude/hooks/seo/lib/generate_assets.py`
+   - `validate` → Run: `uv run "$CLAUDE_PROJECT_DIR"/.claude/hooks/seo/lib/lighthouse.py --url <URL>`
    - `all` → execute all above in sequence
 3. Each skill self-validates via PostToolUse hooks
 4. If any skill fails validation, fix issues before proceeding
+5. **STOP** after outputting the final report - do not continue
 
 ## Skills
 
@@ -55,13 +51,26 @@ Implement SEO by invoking the appropriate skill(s).
 | @seo-auditor | Read-only audit of current SEO state |
 | @seo-research | Web search for latest SEO best practices |
 
-## Report
+## Completion
 
-After completing:
+After executing all tasks, output this report then STOP immediately:
 
+```
 ## SEO Complete
 
 **Command**: [COMMAND]
 **Framework**: [detected or provided]
-**Skills executed**: [list of skills run]
-**Validation**: [pass/fail per skill]
+
+### Results
+| Skill | Status |
+|-------|--------|
+| meta | ✓ / ✗ |
+| schema | ✓ / ✗ |
+| ai | ✓ / ✗ |
+| perf | ✓ / ✗ |
+| sitemap | ✓ / ✗ |
+| assets | ✓ / ✗ |
+| validate | score/100 |
+```
+
+**IMPORTANT**: Do not continue after outputting this report. The task is complete.

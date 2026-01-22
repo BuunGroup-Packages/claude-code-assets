@@ -209,3 +209,46 @@ playwright --version
 1. Verify uv installed: `uv --version`
 2. Check Claude Code version: `claude --version` (need 2.1.0+)
 3. Verify hook paths match actual file locations
+
+## CLI Scripts
+
+Run these directly for automation or debugging:
+
+### Lighthouse Audit
+
+```bash
+# Run audit with clean output
+uv run .claude/hooks/seo/lib/lighthouse.py --url http://localhost:3000
+
+# With target score
+uv run .claude/hooks/seo/lib/lighthouse.py --url http://localhost:3000 --target 90
+
+# JSON output for CI/CD
+uv run .claude/hooks/seo/lib/lighthouse.py --url http://localhost:3000 --json
+```
+
+### Asset Generation
+
+```bash
+# Auto-detect logo, generate all assets
+uv run .claude/hooks/seo/lib/generate_assets.py
+
+# Specify logo, color, site name
+uv run .claude/hooks/seo/lib/generate_assets.py \
+  --logo public/logo.svg \
+  --color "#3B82F6" \
+  --name "My Site"
+
+# JSON output
+uv run .claude/hooks/seo/lib/generate_assets.py --json
+```
+
+### Generated Assets
+
+The asset generator creates:
+- Favicons: 16x16, 32x32, 96x96, .ico
+- Apple: 180x180, 152x152, 120x120
+- Android: 192x192, 512x512, maskable
+- MS Tiles: 70x70, 150x150, 310x310, 310x150
+- OG/Twitter: 1200x630, 1200x600
+- Config: site.webmanifest, browserconfig.xml

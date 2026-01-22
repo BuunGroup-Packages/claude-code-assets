@@ -131,11 +131,55 @@ def main() -> None:
         else:
             found.append(filename)
 
-    # Check manifest JSON syntax
+    # Check manifest JSON syntax and required fields
     manifest_path = public_dir / "site.webmanifest"
     if manifest_path.exists():
         try:
-            json.loads(manifest_path.read_text())
+            manifest = json.loads(manifest_path.read_text())
+
+            # Check required fields
+            required_fields = ["name", "short_name", "icons", "theme_color", "background_color", "display"]
+            for field in required_fields:
+                if field not in manifest:
+                    errors.append({
+                        "code": "ASSET006",
+                        "file": "site.webmanifest",
+                        "issue": f"Missing required field: {field}",
+                        "fix": f"Add '{field}' to site.webmanifest"
+                    })
+
+            # Check recommended fields (warnings)
+            recommended_fields = ["description", "start_url", "scope", "lang", "orientation"]
+            for field in recommended_fields:
+                if field not in manifest:
+                    warnings.append({
+                        "code": "ASSET010",
+                        "file": "site.webmanifest",
+                        "issue": f"Missing recommended field: {field}",
+                        "fix": f"Consider adding '{field}' to site.webmanifest"
+                    })
+
+            # Check icons have purpose
+            if "icons" in manifest:
+                has_any = any(icon.get("purpose") == "any" for icon in manifest["icons"])
+                has_maskable = any(icon.get("purpose") == "maskable" for icon in manifest["icons"])
+
+                if not has_any:
+                    warnings.append({
+                        "code": "ASSET011",
+                        "file": "site.webmanifest",
+                        "issue": "No icon with purpose 'any'",
+                        "fix": "Add 'purpose': 'any' to at least one icon"
+                    })
+
+                if not has_maskable:
+                    warnings.append({
+                        "code": "ASSET007",
+                        "file": "site.webmanifest",
+                        "issue": "No icon with purpose 'maskable'",
+                        "fix": "Add a maskable icon for Android adaptive icons"
+                    })
+
         except json.JSONDecodeError as e:
             errors.append({
                 "code": "ASSET006",

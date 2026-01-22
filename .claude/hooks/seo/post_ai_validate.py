@@ -44,6 +44,7 @@ AI_BOTS = [
     "Google-Extended",
     "Googlebot",
     # Apple
+    "Applebot",
     "Applebot-Extended",
     # Meta
     "Meta-ExternalAgent",

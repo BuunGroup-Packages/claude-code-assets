@@ -3,17 +3,9 @@ name: seo-validate
 description: |
   Run full SEO validation with Lighthouse. Returns scores for Performance,
   Accessibility, Best Practices, SEO. Use for auditing, verifying implementation,
-  or checking Lighthouse scores. Runs in isolated forked context.
+  or checking Lighthouse scores.
 argument-hint: "[url] [target_score]"
-context: fork
-agent: general-purpose
 allowed-tools: Bash, Read, Glob, Grep
-hooks:
-  Stop:
-    - matcher: "*"
-      hooks:
-        - type: command
-          command: "uv run \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/seo/generate_report.py"
 ---
 
 # SEO Validation Suite
@@ -47,31 +39,21 @@ Returns detailed scores and actionable recommendations.
 
 ### 1. Server Check
 
-Verifies dev server is accessible:
+Verify dev server is accessible:
 ```bash
 curl -s -o /dev/null -w "%{http_code}" $URL
 ```
 
+If not 200, ask user to start dev server first.
+
 ### 2. Lighthouse Audit
 
-Runs full Lighthouse via Playwright:
+Run the lighthouse script:
 ```bash
-uv run "$CLAUDE_PROJECT_DIR"/.claude/hooks/seo/lib/lighthouse.py --url $URL
+uv run "$CLAUDE_PROJECT_DIR"/.claude/hooks/seo/lib/lighthouse.py --url $URL --target $TARGET_SCORE
 ```
 
-### 3. Schema Validation
-
-Validates JSON-LD against Schema.org:
-```bash
-uv run "$CLAUDE_PROJECT_DIR"/.claude/hooks/seo/lib/schema_check.py --url $URL
-```
-
-### 4. AI Crawler Check
-
-Simulates AI bot access:
-```bash
-uv run "$CLAUDE_PROJECT_DIR"/.claude/hooks/seo/lib/ai_crawler.py --url $URL
-```
+This outputs scores and issues. **After outputting results, STOP.**
 
 ## Score Targets
 
@@ -177,3 +159,7 @@ After validation fails, run specific skills to fix:
 | AI crawler blocked | /seo-ai |
 
 Then re-run `/seo-validate` to confirm fixes.
+
+## Completion
+
+After running Lighthouse and outputting results, STOP immediately. Do not continue or loop.

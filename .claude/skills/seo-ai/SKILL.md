@@ -46,6 +46,7 @@ PostToolUse hook validates every edit automatically.
 | PerplexityBot | Perplexity | AI search engine |
 | Google-Extended | Google | Gemini/AI features |
 | Googlebot | Google | Google Search + AI |
+| Applebot | Apple | Apple Search/Siri |
 | Applebot-Extended | Apple | Apple Intelligence |
 | Bytespider | ByteDance | TikTok/Doubao AI |
 | Meta-ExternalAgent | Meta | Meta AI/Llama |
@@ -100,26 +101,128 @@ Include key information AI assistants should know.
 Add to `public/robots.txt`:
 
 ```txt
-# AI Crawlers - Allow access
+# =============================================================================
+# AI CRAWLERS - Allow with protected routes
+# =============================================================================
+
+# OpenAI (ChatGPT)
 User-agent: GPTBot
+Allow: /
+Allow: /llms.txt
+Disallow: /api/
+Disallow: /admin/
+
 User-agent: OAI-SearchBot
+Allow: /
+Allow: /llms.txt
+Disallow: /api/
+Disallow: /admin/
+
 User-agent: ChatGPT-User
+Allow: /
+Allow: /llms.txt
+Disallow: /api/
+Disallow: /admin/
+
+# Anthropic (Claude)
 User-agent: ClaudeBot
-User-agent: PerplexityBot
+Allow: /
+Allow: /llms.txt
+Disallow: /api/
+Disallow: /admin/
+
+# Google (Gemini)
 User-agent: Google-Extended
+Allow: /
+Allow: /llms.txt
+Disallow: /api/
+Disallow: /admin/
+
+# Apple Intelligence
+User-agent: Applebot
+Allow: /
+Allow: /llms.txt
+Disallow: /api/
+Disallow: /admin/
+
 User-agent: Applebot-Extended
-User-agent: Bytespider
+Allow: /
+Allow: /llms.txt
+Disallow: /api/
+Disallow: /admin/
+
+# Perplexity AI
+User-agent: PerplexityBot
+Allow: /
+Allow: /llms.txt
+Disallow: /api/
+Disallow: /admin/
+
+# Meta AI
 User-agent: Meta-ExternalAgent
+Allow: /
+Allow: /llms.txt
+Disallow: /api/
+Disallow: /admin/
+
 User-agent: FacebookBot
+Allow: /
+Allow: /llms.txt
+Disallow: /api/
+Disallow: /admin/
+
+# Amazon (Alexa)
 User-agent: Amazonbot
+Allow: /
+Allow: /llms.txt
+Disallow: /api/
+Disallow: /admin/
+
+# ByteDance (TikTok)
+User-agent: Bytespider
+Allow: /
+Allow: /llms.txt
+Disallow: /api/
+Disallow: /admin/
+
+# Cohere
 User-agent: cohere-ai
+Allow: /
+Allow: /llms.txt
+Disallow: /api/
+Disallow: /admin/
+
+# You.com
 User-agent: YouBot
+Allow: /
+Allow: /llms.txt
+Disallow: /api/
+Disallow: /admin/
+
+# Allen Institute
 User-agent: AI2Bot
+Allow: /
+Allow: /llms.txt
+Disallow: /api/
+Disallow: /admin/
+
+# Diffbot
 User-agent: Diffbot
+Allow: /
+Allow: /llms.txt
+Disallow: /api/
+Disallow: /admin/
+
+# Common Crawl
 User-agent: CCBot
 Allow: /
+Allow: /llms.txt
+Disallow: /api/
+Disallow: /admin/
 
-# Sitemap
+# =============================================================================
+# SITEMAP
+# =============================================================================
 Sitemap: https://yoursite.com/sitemap.xml
 ```
 
@@ -132,6 +235,7 @@ User-agent: OAI-SearchBot
 User-agent: ClaudeBot
 User-agent: PerplexityBot
 User-agent: Google-Extended
+User-agent: Applebot-Extended
 User-agent: Bytespider
 User-agent: Meta-ExternalAgent
 User-agent: cohere-ai
