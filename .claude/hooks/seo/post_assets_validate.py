@@ -190,15 +190,15 @@ def main() -> None:
 
     # Build response
     if errors:
-        message = format_errors(errors, warnings, found)
+        message = format_errors(errors, warnings, found, public_dir)
         print(json.dumps({"continue": True, "message": message}))
     elif warnings:
-        message = format_warnings(warnings, found)
+        message = format_warnings(warnings, found, public_dir)
         print(json.dumps({"continue": True, "message": message}))
     else:
         print(json.dumps({
             "continue": True,
-            "message": f"✓ SEO assets validated ({len(found)} files)"
+            "message": f"✓ SEO assets validated ({len(found)} files in {public_dir}/)"
         }))
 
 
@@ -248,10 +248,11 @@ def get_png_dimensions(filepath: Path) -> tuple[int, int] | None:
         return None
 
 
-def format_errors(errors: list, warnings: list, found: list) -> str:
+def format_errors(errors: list, warnings: list, found: list, public_dir: Path) -> str:
     """Format error message."""
     lines = [
         "✗ SEO ASSETS VALIDATION FAILED",
+        f"Checking: {public_dir}/",
         f"Found: {len(found)} | Missing: {len(errors)} | Warnings: {len(warnings)}",
         "",
         "MISSING REQUIRED ASSETS:",
@@ -272,10 +273,10 @@ def format_errors(errors: list, warnings: list, found: list) -> str:
     return "\n".join(lines)
 
 
-def format_warnings(warnings: list, found: list) -> str:
+def format_warnings(warnings: list, found: list, public_dir: Path) -> str:
     """Format warnings-only message."""
     lines = [
-        f"✓ Required SEO assets present ({len(found)} files)",
+        f"✓ Required SEO assets present ({len(found)} files in {public_dir}/)",
         "",
         f"RECOMMENDATIONS ({len(warnings)}):",
     ]

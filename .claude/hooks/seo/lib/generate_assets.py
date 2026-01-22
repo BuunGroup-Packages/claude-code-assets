@@ -224,7 +224,7 @@ def create_browserconfig(output_dir: Path, color: str) -> None:
 def main():
     parser = argparse.ArgumentParser(description="Generate SEO assets")
     parser.add_argument("--logo", help="Path to source logo")
-    parser.add_argument("--output", default="public", help="Output directory")
+    parser.add_argument("--output", default="public", help="Output directory (must be public/ root, not a subdirectory)")
     parser.add_argument("--name", default="Site", help="Site name for manifest")
     parser.add_argument("--color", default="#3B82F6", help="Theme color (hex)")
     parser.add_argument("--json", action="store_true", help="Output JSON")
@@ -233,6 +233,19 @@ def main():
 
     project_dir = Path.cwd()
     output_dir = Path(args.output)
+
+    # CRITICAL: Assets MUST go in public/ root for browser discovery
+    # Not in subdirectories like public/images/logo/
+    output_resolved = output_dir.resolve()
+    if output_resolved.name not in ("public", "static", "dist"):
+        warning = (
+            f"⚠️  WARNING: Output directory is '{output_dir}'\n"
+            "   SEO assets should be in the root of public/, not a subdirectory!\n"
+            "   Browsers expect favicon.ico, apple-touch-icon.png etc at /favicon.ico\n"
+            "   Recommended: --output public\n"
+        )
+        if not args.json:
+            print(warning)
 
     # Find logo
     if args.logo:

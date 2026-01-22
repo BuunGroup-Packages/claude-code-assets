@@ -137,13 +137,42 @@ def format_report(result: dict) -> str:
     return "\n".join(lines)
 
 
+def validate_localhost(url: str) -> bool:
+    """Check if URL is localhost/127.0.0.1."""
+    localhost_patterns = [
+        "localhost",
+        "127.0.0.1",
+        "0.0.0.0",
+        "[::1]",
+    ]
+    return any(pattern in url.lower() for pattern in localhost_patterns)
+
+
 def main():
     parser = argparse.ArgumentParser(description="Run Lighthouse audit")
-    parser.add_argument("--url", required=True, help="URL to audit")
+    parser.add_argument("--url", default="http://localhost:3000", help="URL to audit (must be localhost)")
     parser.add_argument("--target", type=int, default=100, help="Target score (0-100)")
     parser.add_argument("--json", action="store_true", help="Output JSON")
 
     args = parser.parse_args()
+
+    # Enforce localhost - Lighthouse should run against local dev server
+    if not validate_localhost(args.url):
+        error_msg = (
+            "✗ ERROR: Lighthouse must run against localhost\n"
+            f"  Provided: {args.url}\n"
+            "  Use: http://localhost:3000 or http://localhost:4321\n"
+            "\n"
+            "Start your dev server first:\n"
+            "  npm run dev\n"
+            "  pnpm dev\n"
+            "  yarn dev"
+        )
+        if args.json:
+            print(json.dumps({"error": "URL must be localhost", "url": args.url}))
+        else:
+            print(error_msg)
+        sys.exit(1)
 
     result = run_lighthouse(args.url, args.target)
 

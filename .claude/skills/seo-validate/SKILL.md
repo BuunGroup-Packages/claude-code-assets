@@ -19,14 +19,31 @@ Returns detailed scores and actionable recommendations.
 
 | Position | Name | Values | Default |
 |----------|------|--------|---------|
-| $1 | url | URL to validate | http://localhost:3000 |
+| $1 | url | Local dev URL (localhost only) | http://localhost:3000 |
 | $2 | target_score | Minimum score (0-100) | 100 |
 
 ## Usage
 
 ```bash
-/seo-validate http://localhost:4321
-/seo-validate http://localhost:3000 95
+/seo-validate                           # Defaults to localhost:3000
+/seo-validate http://localhost:4321     # Astro default port
+/seo-validate http://localhost:3000 95  # Custom target score
+/seo-validate http://localhost:5173     # Vite default port
+```
+
+## IMPORTANT: Local Development Only
+
+Lighthouse MUST run against your **local dev server**, NOT a remote/production URL:
+- ✓ `http://localhost:3000`
+- ✓ `http://localhost:4321`
+- ✓ `http://127.0.0.1:3000`
+- ✗ `https://mysite.com` (will be rejected)
+
+Start your dev server first:
+```bash
+npm run dev    # Most frameworks
+pnpm dev       # pnpm
+yarn dev       # yarn
 ```
 
 ## Prerequisites

@@ -216,8 +216,13 @@ Run these directly for automation or debugging:
 
 ### Lighthouse Audit
 
+**IMPORTANT**: Lighthouse must run against localhost, not remote URLs.
+
 ```bash
-# Run audit with clean output
+# Start your dev server first!
+npm run dev
+
+# Run audit against local dev server
 uv run .claude/hooks/seo/lib/lighthouse.py --url http://localhost:3000
 
 # With target score
@@ -225,23 +230,40 @@ uv run .claude/hooks/seo/lib/lighthouse.py --url http://localhost:3000 --target 
 
 # JSON output for CI/CD
 uv run .claude/hooks/seo/lib/lighthouse.py --url http://localhost:3000 --json
+
+# Common ports:
+# - http://localhost:3000  (Next.js, Create React App)
+# - http://localhost:4321  (Astro)
+# - http://localhost:5173  (Vite)
 ```
 
 ### Asset Generation
 
+**IMPORTANT**: Assets must be in `public/` root, not subdirectories.
+
 ```bash
-# Auto-detect logo, generate all assets
-uv run .claude/hooks/seo/lib/generate_assets.py
+# Auto-detect logo, generate all assets to public/ root
+uv run .claude/hooks/seo/lib/generate_assets.py --output public
 
 # Specify logo, color, site name
 uv run .claude/hooks/seo/lib/generate_assets.py \
   --logo public/logo.svg \
   --color "#3B82F6" \
-  --name "My Site"
+  --name "My Site" \
+  --output public
 
 # JSON output
-uv run .claude/hooks/seo/lib/generate_assets.py --json
+uv run .claude/hooks/seo/lib/generate_assets.py --output public --json
 ```
+
+Files are created at:
+```
+public/favicon.ico          → /favicon.ico
+public/apple-touch-icon.png → /apple-touch-icon.png
+public/og-image.png         → /og-image.png
+```
+
+NOT in subdirectories like `public/images/logo/` - browsers won't find them there!
 
 ### Generated Assets
 

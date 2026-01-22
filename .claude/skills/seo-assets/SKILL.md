@@ -34,23 +34,46 @@ Scans codebase for logo, generates all sizes, creates manifest files.
 /seo-assets src/assets/brand.png
 ```
 
+## CRITICAL: Output Location
+
+All assets MUST be generated in the **root of public/**, NOT in subdirectories:
+
+```
+public/
+├── favicon.ico          ✓ Correct - browser finds at /favicon.ico
+├── favicon-32x32.png    ✓ Correct
+├── apple-touch-icon.png ✓ Correct
+├── og-image.png         ✓ Correct
+├── site.webmanifest     ✓ Correct
+└── images/
+    └── logo/
+        └── favicon.ico  ✗ WRONG - browser won't find this!
+```
+
+Browsers request these files at fixed paths:
+- `/favicon.ico` (not `/images/logo/favicon.ico`)
+- `/apple-touch-icon.png` (not `/assets/apple-touch-icon.png`)
+
 ## Quick Generate (Script)
 
 Run the generator script directly:
 
 ```bash
-# Auto-detect logo, generate all assets
-uv run "$CLAUDE_PROJECT_DIR"/.claude/hooks/seo/lib/generate_assets.py
+# Auto-detect logo, generate all assets to public/ root
+uv run "$CLAUDE_PROJECT_DIR"/.claude/hooks/seo/lib/generate_assets.py --output public
 
-# Specify logo and color
+# Specify logo and color (always output to public/)
 uv run "$CLAUDE_PROJECT_DIR"/.claude/hooks/seo/lib/generate_assets.py \
   --logo public/logo.svg \
   --color "#3B82F6" \
-  --name "My Site"
+  --name "My Site" \
+  --output public
 
 # Output JSON for automation
-uv run "$CLAUDE_PROJECT_DIR"/.claude/hooks/seo/lib/generate_assets.py --json
+uv run "$CLAUDE_PROJECT_DIR"/.claude/hooks/seo/lib/generate_assets.py --output public --json
 ```
+
+**Always use `--output public`** to ensure assets are in the correct location.
 
 ## Generated Assets
 
