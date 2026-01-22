@@ -14,7 +14,7 @@ hooks:
 
 ## Variables
 
-COMMAND: $1 (meta, schema, ai, perf, validate, all)
+COMMAND: $1 (meta, schema, ai, perf, sitemap, assets, validate, all)
 FRAMEWORK: $2 (astro, vite, tanstack, nextjs, auto)
 
 ## Instructions
@@ -29,6 +29,8 @@ Implement SEO by invoking the appropriate skill(s).
    - `schema` → /seo-schema Organization
    - `ai` → /seo-ai llms-txt
    - `perf` → /seo-perf all
+   - `sitemap` → /seo-sitemap FRAMEWORK
+   - `assets` → /seo-assets (generate favicons, OG images, etc.)
    - `validate` → /seo-validate http://localhost:4321
    - `all` → execute all above in sequence
 3. Each skill self-validates via PostToolUse hooks
@@ -42,7 +44,16 @@ Implement SEO by invoking the appropriate skill(s).
 | schema | /seo-schema | JSON-LD structured data |
 | ai | /seo-ai | llms.txt, AI crawler config |
 | perf | /seo-perf | Core Web Vitals optimization |
+| sitemap | /seo-sitemap | XML sitemap generation |
+| assets | /seo-assets | Favicons, OG images, manifests |
 | validate | /seo-validate | Full Lighthouse audit |
+
+## Agents
+
+| Agent | What it does |
+|-------|--------------|
+| @seo-auditor | Read-only audit of current SEO state |
+| @seo-research | Web search for latest SEO best practices |
 
 ## Report
 

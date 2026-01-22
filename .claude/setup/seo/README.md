@@ -33,6 +33,15 @@ npm run dev
 @seo-auditor Audit this project for SEO issues
 ```
 
+### Research Best Practices
+
+```bash
+# Get latest SEO recommendations via web search
+@seo-research What are the latest SEO best practices for Astro in 2026?
+@seo-research Are there any new AI crawlers I should add to robots.txt?
+@seo-research What Core Web Vitals thresholds changed in 2026?
+```
+
 ### Individual Skills
 
 ```bash
@@ -53,6 +62,14 @@ npm run dev
 /seo perf all
 /seo perf images
 /seo perf fonts
+
+# Sitemap
+/seo sitemap astro https://mysite.com
+/seo sitemap nextjs
+
+# Assets (favicons, OG images, manifests)
+/seo assets
+/seo assets public/logo.svg #3B82F6
 
 # Lighthouse validation
 /seo validate http://localhost:4321
@@ -76,7 +93,9 @@ npm run dev
 # 3. Create public/llms.txt
 # 4. Configure public/robots.txt for AI crawlers
 # 5. Optimize images with width/height/lazy
-# 6. Run Lighthouse to verify 100 scores
+# 6. Generate/configure sitemap.xml
+# 7. Generate all favicons, OG images, manifests
+# 8. Run Lighthouse to verify 100 scores
 ```
 
 ### Existing Next.js App
@@ -139,4 +158,54 @@ Errors: 2
 | SCHEMA0xx | JSON-LD |
 | AI0xx | AI SEO |
 | PERF0xx | Performance |
+| SITEMAP0xx | Sitemap |
+| ASSET0xx | Image assets |
 | LH_xxx | Lighthouse |
+
+## Troubleshooting
+
+### WSL Lighthouse Issues
+
+Headless Chrome can fail in WSL. Use chromium-browser with sandbox disabled:
+
+```bash
+# Install chromium
+sudo apt install chromium-browser
+
+# Set Chrome path
+export CHROME_PATH=$(which chromium-browser)
+
+# Run Lighthouse with WSL flags
+lighthouse http://localhost:3000 --chrome-flags="--headless --no-sandbox --disable-gpu --disable-dev-shm-usage"
+```
+
+Add to `.bashrc` for persistence:
+```bash
+echo 'export CHROME_PATH=$(which chromium-browser)' >> ~/.bashrc
+```
+
+### Alternative: Chrome DevTools
+
+For WSL, Chrome DevTools method is most reliable:
+
+1. Open Chrome on Windows
+2. Go to `chrome://inspect`
+3. Click "Configure" and add `localhost:9222`
+4. Run your dev server
+5. Use Chrome DevTools Lighthouse tab directly
+
+### Playwright Issues
+
+```bash
+# Reinstall browsers
+playwright install --force chromium
+
+# Check installation
+playwright --version
+```
+
+### Hooks Not Running
+
+1. Verify uv installed: `uv --version`
+2. Check Claude Code version: `claude --version` (need 2.1.0+)
+3. Verify hook paths match actual file locations

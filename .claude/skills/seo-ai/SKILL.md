@@ -35,15 +35,26 @@ PostToolUse hook validates every edit automatically.
 /seo-ai content src/pages/about.astro
 ```
 
-## AI Crawlers
+## AI Crawlers (2026)
 
 | Bot | Company | Purpose |
 |-----|---------|---------|
-| GPTBot | OpenAI | ChatGPT training/search |
+| GPTBot | OpenAI | ChatGPT training |
+| OAI-SearchBot | OpenAI | ChatGPT search |
+| ChatGPT-User | OpenAI | ChatGPT browsing |
 | ClaudeBot | Anthropic | Claude training/search |
 | PerplexityBot | Perplexity | AI search engine |
 | Google-Extended | Google | Gemini/AI features |
+| Googlebot | Google | Google Search + AI |
+| Applebot-Extended | Apple | Apple Intelligence |
+| Bytespider | ByteDance | TikTok/Doubao AI |
+| Meta-ExternalAgent | Meta | Meta AI/Llama |
+| FacebookBot | Meta | Facebook AI features |
 | Amazonbot | Amazon | Alexa/AI features |
+| cohere-ai | Cohere | Cohere models |
+| YouBot | You.com | You.com AI search |
+| AI2Bot | Allen Institute | AI research |
+| Diffbot | Diffbot | Knowledge graph |
 | CCBot | Common Crawl | Open dataset |
 
 ## llms.txt Specification
@@ -91,15 +102,21 @@ Add to `public/robots.txt`:
 ```txt
 # AI Crawlers - Allow access
 User-agent: GPTBot
-Allow: /
-
+User-agent: OAI-SearchBot
+User-agent: ChatGPT-User
 User-agent: ClaudeBot
-Allow: /
-
 User-agent: PerplexityBot
-Allow: /
-
 User-agent: Google-Extended
+User-agent: Applebot-Extended
+User-agent: Bytespider
+User-agent: Meta-ExternalAgent
+User-agent: FacebookBot
+User-agent: Amazonbot
+User-agent: cohere-ai
+User-agent: YouBot
+User-agent: AI2Bot
+User-agent: Diffbot
+User-agent: CCBot
 Allow: /
 
 # Sitemap
@@ -109,10 +126,16 @@ Sitemap: https://yoursite.com/sitemap.xml
 ### Block AI (if needed)
 
 ```txt
+# Block all AI training/search
 User-agent: GPTBot
-Disallow: /
-
+User-agent: OAI-SearchBot
 User-agent: ClaudeBot
+User-agent: PerplexityBot
+User-agent: Google-Extended
+User-agent: Bytespider
+User-agent: Meta-ExternalAgent
+User-agent: cohere-ai
+User-agent: CCBot
 Disallow: /
 ```
 

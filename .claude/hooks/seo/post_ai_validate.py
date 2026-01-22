@@ -34,16 +34,29 @@ from lib.validators import is_ai_file
 # =============================================================================
 
 AI_BOTS = [
+    # OpenAI
     "GPTBot",
-    "ClaudeBot", 
-    "PerplexityBot",
-    "Google-Extended",
-    "Amazonbot",
-    "anthropic-ai",
-    "Bytespider",
-    "CCBot",
+    "OAI-SearchBot",
     "ChatGPT-User",
+    # Anthropic
+    "ClaudeBot",
+    # Google
+    "Google-Extended",
+    "Googlebot",
+    # Apple
+    "Applebot-Extended",
+    # Meta
+    "Meta-ExternalAgent",
+    "FacebookBot",
+    # Other AI search
+    "PerplexityBot",
+    "YouBot",
+    "Amazonbot",
+    "Bytespider",
     "cohere-ai",
+    "AI2Bot",
+    "Diffbot",
+    "CCBot",
 ]
 
 LLMS_TXT_REQUIRED_SECTIONS = [
