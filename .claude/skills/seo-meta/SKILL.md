@@ -110,3 +110,22 @@ After fixing, save file. Validation re-runs automatically.
 | META013 | error | Missing og:url |
 | META014 | error | Missing twitter:card |
 | META015 | warning | Missing robots directive |
+| META016 | error | Non-descriptive link text |
+
+## Link Text Requirements
+
+Links must have descriptive text for SEO and accessibility. Avoid generic text:
+
+**Bad (triggers META016):**
+- "Learn more"
+- "Click here"
+- "Read more"
+- "Here"
+- "More info"
+
+**Good:**
+- "Learn more about our painting courses"
+- "View our gallery of student artwork"
+- "Read our guide to watercolor techniques"
+
+The validation checks `<a>`, `<Link>`, and `<NavLink>` elements.

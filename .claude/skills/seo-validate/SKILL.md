@@ -81,6 +81,14 @@ This outputs scores and issues. **After outputting results, STOP.**
 | Best Practices | 100 | Security, HTTPS |
 | SEO | 100 | Meta, crawlability |
 
+## Report Output
+
+Reports are automatically saved to `reports/seo/lighthouse-{timestamp}.json`.
+
+Lighthouse temp directories are cleaned up automatically:
+- Windows: `AppData\Local\lighthouse.*`
+- Linux/WSL: `/tmp/lighthouse.*`
+
 ## Output Format
 
 Returns structured report:

@@ -44,6 +44,24 @@ TITLE_MAX = 60
 DESC_MIN = 120
 DESC_MAX = 160
 
+# Non-descriptive link text patterns (case-insensitive)
+NON_DESCRIPTIVE_LINKS = [
+    "learn more",
+    "read more",
+    "click here",
+    "here",
+    "more",
+    "link",
+    "this",
+    "more info",
+    "info",
+    "details",
+    "see more",
+    "view more",
+    "continue",
+    "continue reading",
+]
+
 
 # =============================================================================
 # MAIN ENTRY POINT
@@ -172,8 +190,47 @@ def validate_meta(content: str, file_path: str) -> tuple[list[ValidationError], 
     robots, _ = extract_meta_content(content, "robots")
     if not robots:
         warnings.append(MetaErrors.missing_robots(file_path, head_line))
-    
+
+    # === NON-DESCRIPTIVE LINK TEXT ===
+    bad_links = find_non_descriptive_links(content, lines)
+    for link_text, link_line in bad_links:
+        errors.append(MetaErrors.non_descriptive_link(file_path, link_text, link_line))
+
     return errors, warnings
+
+
+# =============================================================================
+# LINK TEXT VALIDATION
+# =============================================================================
+
+def find_non_descriptive_links(content: str, lines: list[str]) -> list[tuple[str, int]]:
+    """
+    Find links with non-descriptive text.
+
+    Returns:
+        List of (link_text, line_number) tuples
+    """
+    import re
+
+    bad_links = []
+
+    # Pattern to match <a ...>text</a> or {children} in JSX
+    # Handles: <a href="...">Learn more</a>
+    # Handles: <Link to="...">Click here</Link>
+    link_pattern = re.compile(
+        r'<(?:a|Link|NavLink)\s[^>]*>([^<]+)</(?:a|Link|NavLink)>',
+        re.IGNORECASE
+    )
+
+    for i, line in enumerate(lines, 1):
+        for match in link_pattern.finditer(line):
+            link_text = match.group(1).strip()
+
+            # Check if link text is non-descriptive
+            if link_text.lower() in NON_DESCRIPTIVE_LINKS:
+                bad_links.append((link_text, i))
+
+    return bad_links
 
 
 # =============================================================================

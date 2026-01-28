@@ -8,12 +8,24 @@ Self-validating SEO implementation for Claude Code.
 # 1. Install dependencies
 cd .claude/setup && make
 
-# 2. Start your dev server
-npm run dev
+# 2. Build and start your dev server
+npm run build && npm run dev
 
 # 3. Run full SEO implementation
 /seo all astro
 ```
+
+## Dependencies
+
+Installed via `make deps` or `make deps-wsl`:
+
+| Package | Purpose |
+|---------|---------|
+| uv | Python package runner |
+| playwright | Browser automation |
+| lighthouse | SEO/performance audits |
+| terser | JS minifier (Vite builds) |
+| imagemagick | Image processing (WSL) |
 
 ## Commands
 
@@ -231,11 +243,20 @@ uv run .claude/hooks/seo/lib/lighthouse.py --url http://localhost:3000 --target 
 # JSON output for CI/CD
 uv run .claude/hooks/seo/lib/lighthouse.py --url http://localhost:3000 --json
 
+# Don't save report (temp only)
+uv run .claude/hooks/seo/lib/lighthouse.py --url http://localhost:3000 --no-save
+
 # Common ports:
 # - http://localhost:3000  (Next.js, Create React App)
 # - http://localhost:4321  (Astro)
 # - http://localhost:5173  (Vite)
 ```
+
+**Reports**: Saved to `reports/seo/lighthouse-{timestamp}.json`
+
+**Cleanup**: Automatically removes lighthouse temp directories:
+- Windows: `AppData\Local\lighthouse.*`
+- Linux/WSL: `/tmp/lighthouse.*`
 
 ### Asset Generation
 

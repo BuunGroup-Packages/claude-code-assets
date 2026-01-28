@@ -395,6 +395,20 @@ class MetaErrors:
             fix='Add <meta name="robots" content="index, follow"> inside <head>.'
         )
 
+    @staticmethod
+    def non_descriptive_link(file: str, link_text: str, line: int | None = None) -> ValidationError:
+        return ValidationError(
+            code="META016",
+            severity="error",
+            file=file,
+            line=line,
+            element=f'<a>"{link_text}"</a>',
+            rule="Link text must be descriptive for SEO and accessibility",
+            current=f'"{link_text}"',
+            expected="Descriptive text explaining where the link goes",
+            fix=f'Replace generic "{link_text}" with descriptive text. E.g., "Learn more about our courses" instead of "Learn more".'
+        )
+
 
 # =============================================================================
 # SCHEMA ERRORS
