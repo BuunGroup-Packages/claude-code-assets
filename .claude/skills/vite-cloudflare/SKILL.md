@@ -1,16 +1,60 @@
 ---
 name: vite-cloudflare
-model: sonnet
-description: |
-  Build Vite 6 + React + Cloudflare Workers apps with Hono API.
-  TypeScript-first, co-located components, CSS animations.
-  Orchestrates init, api, component, binding, page sub-skills.
-argument-hint: "[command] [args]"
+description: Build Vite 6 + React 19 + Cloudflare Workers apps with Hono API. TypeScript-first, co-located components, CSS animations.
+argument-hint: "<command> [args]"
+user-invokable: true
 ---
 
 # Vite 6 + React + Cloudflare Workers + Hono
 
-## Stack Overview
+Build full-stack apps with Vite 6, React 19, Cloudflare Workers, and Hono API.
+
+## Pre-Flight
+
+Read design system docs before creating components:
+- `.claude/skills/vite-cloudflare/docs/DESIGN.md`
+- `.claude/skills/vite-cloudflare/docs/COLORS.md`
+- `.claude/skills/vite-cloudflare/docs/COMPONENTS.md`
+
+## Commands
+
+| Command | Reference | Model | Description |
+|---------|-----------|-------|-------------|
+| `build-app <name>` | `references/build-app.md` | sonnet | Full app scaffold (parallel) |
+| `add-feature <name>` | `references/add-feature.md` | sonnet | Complete feature (parallel) |
+| `init <name>` | `references/init.md` | haiku | Project scaffold |
+| `api <resource>` | **delegates to `api-generator`** | sonnet | Hono API route |
+| `component <name> [path]` | `references/component.md` | haiku | React component |
+| `page <name> [--with-components]` | `references/page.md` | haiku | React Router page |
+| `binding <type> <name>` | `references/binding.md` | haiku | D1/R2/KV binding |
+
+## API Delegation
+
+All API generation is delegated to the `api-generator` skill, which follows production best practices from `.claude/assets/best-practices/hono-cf-workers/`. This ensures proper service layers, Drizzle ORM, middleware, structured errors, and testing.
+
+- `api <resource>` -> `api-generator add-route <resource>`
+- `build-app` API step -> `api-generator init <name>` + `api-generator add-route health`
+- `add-feature` API step -> `api-generator add-route <feature>` + `api-generator add-schema <feature>` + `api-generator add-service <feature>`
+
+## Build Workflow (build-app)
+
+1. **PARALLEL** -- init + binding + page (vite-cloudflare) + api-generator init (api-generator)
+2. **FINALIZE** -- Verify wiring, summarize output
+
+## Add Feature Workflow (add-feature)
+
+1. **PARALLEL** -- page + component (vite-cloudflare) + add-route + add-schema + add-service (api-generator)
+2. **FINALIZE** -- List integration steps
+
+## Sub-Agent Instructions
+
+When spawning Task agents, read the corresponding `references/*.md` file and pass its patterns to the agent. Use the model specified in the commands table.
+
+For API work, invoke the `api-generator` skill instead of generating API code directly. The api-generator reads `.claude/assets/best-practices/hono-cf-workers/` and its own `references/*.md`.
+
+For compound commands (`build-app`, `add-feature`), spawn ALL agents in a SINGLE message for parallel execution.
+
+## Stack
 
 | Layer | Technology |
 |-------|------------|
@@ -23,458 +67,31 @@ argument-hint: "[command] [args]"
 | Cache | Cloudflare KV |
 | Styling | CSS (no Framer Motion) |
 
-## Commands
-
-| Command | Sub-skill | What it does |
-|---------|-----------|--------------|
-| init | /vite-cloudflare:init | Scaffold new project |
-| api | /vite-cloudflare:api | Add Hono API route |
-| component | /vite-cloudflare:component | Add React component |
-| binding | /vite-cloudflare:binding | Configure D1/R2/KV |
-| page | /vite-cloudflare:page | Add React Router page |
-
----
-
 ## Architecture
 
-```
-┌─────────────────────────────────────────────────────────────┐
-│                    Cloudflare Workers                        │
-│  ┌─────────────────────────────────────────────────────────┐│
-│  │  Hono API (/api/*)           │  Static Assets (Vite)   ││
-│  │  - /api/users                │  - index.html           ││
-│  │  - /api/posts                │  - assets/*.js          ││
-│  │  - Bindings: D1, R2, KV      │  - assets/*.css         ││
-│  └─────────────────────────────────────────────────────────┘│
-└─────────────────────────────────────────────────────────────┘
-                              │
-                    ┌─────────┴─────────┐
-                    │   React SPA       │
-                    │   (Client-side)   │
-                    │   - React Router  │
-                    │   - fetch(/api/*) │
-                    └───────────────────┘
-```
-
-### Key Concepts
-
-1. **SPA Architecture** - React runs entirely on client, no SSR by default
-2. **API Layer** - Hono handles all `/api/*` routes in Workers
-3. **Static Assets** - Vite builds to static files served by Workers
-4. **Bindings** - D1/R2/KV accessed only in Hono (not React)
-
----
-
-## Project Structure
-
-```
-project/
-├── src/
-│   ├── client/                   # React SPA
-│   │   ├── main.tsx              # Entry point
-│   │   ├── App.tsx               # Root component
-│   │   ├── router.tsx            # React Router config
-│   │   ├── pages/                # Route pages
-│   │   │   ├── Home/
-│   │   │   │   ├── HomePage.tsx
-│   │   │   │   ├── HomePage.css
-│   │   │   │   ├── _components/
-│   │   │   │   ├── _hooks/
-│   │   │   │   └── _types/
-│   │   │   └── Dashboard/
-│   │   │       ├── DashboardPage.tsx
-│   │   │       └── _components/
-│   │   ├── components/           # Shared components
-│   │   │   ├── Button/
-│   │   │   │   ├── Button.tsx
-│   │   │   │   └── Button.css
-│   │   │   └── index.ts
-│   │   ├── hooks/                # Shared hooks
-│   │   ├── types/                # Shared types
-│   │   └── lib/
-│   │       └── api.ts            # API client (fetch wrapper)
-│   │
-│   └── worker/                   # Hono API (Cloudflare Workers)
-│       ├── index.ts              # Worker entry
-│       ├── routes/
-│       │   ├── users.ts
-│       │   ├── posts.ts
-│       │   └── index.ts
-│       ├── middleware/
-│       │   └── auth.ts
-│       └── lib/
-│           ├── db.ts             # D1 helpers
-│           ├── storage.ts        # R2 helpers
-│           └── cache.ts          # KV helpers
-│
-├── public/                       # Static assets
-├── index.html                    # Vite entry HTML
-├── vite.config.ts
-├── wrangler.jsonc
-├── tsconfig.json
-├── tsconfig.worker.json
-└── package.json
-```
-
----
-
-## Configuration Files
-
-### vite.config.ts
-
-```typescript
-import { defineConfig } from "vite";
-import react from "@vitejs/plugin-react";
-import { cloudflare } from "@cloudflare/vite-plugin";
-import path from "path";
-
-export default defineConfig({
-  plugins: [react(), cloudflare()],
-  resolve: {
-    alias: {
-      "@": path.resolve(__dirname, "./src/client"),
-      "@worker": path.resolve(__dirname, "./src/worker"),
-    },
-  },
-});
-```
-
-### wrangler.jsonc
-
-```jsonc
-{
-  "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "my-app",
-  "compatibility_date": "2025-05-21",
-  "compatibility_flags": ["nodejs_compat"],
-  "main": "src/worker/index.ts",
-  "assets": {
-    "directory": "./dist/client",
-    "binding": "ASSETS",
-    "not_found_handling": "single-page-application"
-  }
-}
-```
-
-### tsconfig.worker.json
-
-```json
-{
-  "extends": "./tsconfig.json",
-  "compilerOptions": {
-    "types": ["@cloudflare/workers-types"],
-    "lib": ["ES2022"],
-    "moduleResolution": "bundler"
-  },
-  "include": ["src/worker/**/*"]
-}
-```
-
----
-
-## Hono API Pattern
-
-### Worker Entry
-
-```typescript
-// src/worker/index.ts
-import { Hono } from "hono";
-import { cors } from "hono/cors";
-import { logger } from "hono/logger";
-import { users } from "./routes/users";
-import { posts } from "./routes/posts";
-
-type Bindings = {
-  DB: D1Database;
-  BUCKET: R2Bucket;
-  CACHE: KVNamespace;
-  ASSETS: Fetcher;
-};
-
-const app = new Hono<{ Bindings: Bindings }>()
-  .basePath("/api")
-  .use("*", logger())
-  .use("*", cors())
-  .get("/health", (c) => c.json({ status: "ok" }))
-  .route("/users", users)
-  .route("/posts", posts);
-
-export default app;
-```
-
-### Route Module
-
-```typescript
-// src/worker/routes/users.ts
-import { Hono } from "hono";
-import { zValidator } from "@hono/zod-validator";
-import { z } from "zod";
-
-type Bindings = {
-  DB: D1Database;
-};
-
-export const users = new Hono<{ Bindings: Bindings }>()
-  .get("/", async (c) => {
-    const { results } = await c.env.DB.prepare(
-      "SELECT * FROM users"
-    ).all();
-    return c.json(results);
-  })
-  .get("/:id", async (c) => {
-    const user = await c.env.DB.prepare(
-      "SELECT * FROM users WHERE id = ?"
-    ).bind(c.req.param("id")).first();
-
-    if (!user) return c.json({ error: "Not found" }, 404);
-    return c.json(user);
-  })
-  .post(
-    "/",
-    zValidator("json", z.object({
-      name: z.string().min(1),
-      email: z.string().email(),
-    })),
-    async (c) => {
-      const { name, email } = c.req.valid("json");
-      const result = await c.env.DB.prepare(
-        "INSERT INTO users (name, email) VALUES (?, ?) RETURNING *"
-      ).bind(name, email).first();
-      return c.json(result, 201);
-    }
-  );
-```
-
----
-
-## React Client Pattern
-
-### API Client
-
-```typescript
-// src/client/lib/api.ts
-const API_BASE = "/api";
-
-async function request<T>(
-  endpoint: string,
-  options?: RequestInit
-): Promise<T> {
-  const res = await fetch(`${API_BASE}${endpoint}`, {
-    headers: {
-      "Content-Type": "application/json",
-      ...options?.headers,
-    },
-    ...options,
-  });
-
-  if (!res.ok) {
-    const error = await res.json().catch(() => ({}));
-    throw new Error(error.message || `HTTP ${res.status}`);
-  }
-
-  return res.json();
-}
-
-export const api = {
-  users: {
-    list: () => request<User[]>("/users"),
-    get: (id: string) => request<User>(`/users/${id}`),
-    create: (data: CreateUser) =>
-      request<User>("/users", {
-        method: "POST",
-        body: JSON.stringify(data),
-      }),
-  },
-};
-```
-
-### React Hook
-
-```typescript
-// src/client/pages/Dashboard/_hooks/useUsers.ts
-import { useState, useEffect, useCallback } from "react";
-import { api } from "@/lib/api";
-import type { User } from "../_types";
-
-export function useUsers() {
-  const [users, setUsers] = useState<User[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<Error | null>(null);
-
-  const fetchUsers = useCallback(async () => {
-    setLoading(true);
-    try {
-      const data = await api.users.list();
-      setUsers(data);
-    } catch (e) {
-      setError(e as Error);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    fetchUsers();
-  }, [fetchUsers]);
-
-  return { users, loading, error, refetch: fetchUsers };
-}
-```
-
-### Page Component
-
-```tsx
-// src/client/pages/Dashboard/DashboardPage.tsx
-import { useUsers } from "./_hooks/useUsers";
-import { UserList, CreateUserForm } from "./_components";
-import "./DashboardPage.css";
-
-export function DashboardPage() {
-  const { users, loading, error, refetch } = useUsers();
-
-  if (loading) return <div className="loading">Loading...</div>;
-  if (error) return <div className="error">{error.message}</div>;
-
-  return (
-    <div className="dashboard-page fade-in">
-      <h1>Dashboard</h1>
-      <CreateUserForm onSuccess={refetch} />
-      <UserList users={users} />
-    </div>
-  );
-}
-```
-
----
-
-## Co-located Design
-
-```
-src/client/pages/Dashboard/
-├── DashboardPage.tsx         # Page component
-├── DashboardPage.css         # Page styles
-├── _components/              # Page-specific components
-│   ├── UserList.tsx
-│   ├── UserList.css
-│   ├── CreateUserForm.tsx
-│   ├── CreateUserForm.css
-│   └── index.ts              # Barrel export
-├── _hooks/                   # Page-specific hooks
-│   ├── useUsers.ts
-│   └── index.ts
-├── _types/                   # Page-specific types
-│   ├── user.ts
-│   └── index.ts
-└── _utils/                   # Page-specific utils
-    └── index.ts
-```
-
-### Barrel Exports
-
-```typescript
-// _components/index.ts
-export { UserList } from "./UserList";
-export { CreateUserForm } from "./CreateUserForm";
-
-// _hooks/index.ts
-export { useUsers } from "./useUsers";
-
-// _types/index.ts
-export type { User, CreateUser } from "./user";
-```
-
----
-
-## CSS Animations
-
-```css
-/* src/client/styles/animations.css */
-.fade-in {
-  animation: fadeIn 0.3s ease-out;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(-10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-.slide-in {
-  animation: slideIn 0.3s ease-out;
-}
-
-@keyframes slideIn {
-  from { transform: translateX(-20px); opacity: 0; }
-  to { transform: translateX(0); opacity: 1; }
-}
-```
-
----
-
-## Usage Examples
-
-```bash
-# Create project
-/vite-cloudflare init my-app
-
-# Add API route
-/vite-cloudflare api users
-
-# Add page with co-location
-/vite-cloudflare page dashboard --with-components
-
-# Add shared component
-/vite-cloudflare component Button
-
-# Add binding
-/vite-cloudflare binding d1 DB
-```
-
----
-
-## Development
-
-```bash
-# Install dependencies
-npm install
-
-# Generate binding types
-wrangler types
-
-# Start dev server (Vite + Workers runtime)
-npm run dev
-
-# Preview production build
-npm run build && npm run preview
-
-# Deploy to Cloudflare
-npm run deploy
-```
-
----
-
-## Key Differences from Astro
-
-| Aspect | Astro | Vite + React |
-|--------|-------|--------------|
-| Rendering | Islands (partial hydration) | Full SPA (client-side) |
-| API | Astro Actions | Hono routes |
-| Routing | File-based | React Router |
-| SSR | Built-in | Manual setup |
-| Bundle | Per-island | Single bundle |
-
----
+- **Co-located pages** -- `_components/`, `_hooks/`, `_types/`, `_utils/` per page
+- **Shared components** -- `src/client/components/` with barrel exports
+- **BEM CSS** -- Design tokens via CSS custom properties
+- **Hono API** -- `/api/*` routes with Zod validation
+- **CSS animations** -- `fade-in`, `slide-in`, `scale-in` with reduced-motion support
+
+## Execution
+
+1. Parse `$ARGUMENTS` to determine command and args
+2. Read the matching `references/*.md` for generation patterns
+3. For compound commands, orchestrate parallel sub-agents
+4. Default: if no command keyword, show help table
+5. Always read design system docs before creating components
 
 ## Output
-
-After executing command:
 
 ```
 ## Vite + Cloudflare
 
-**Command**: [COMMAND]
-**Result**: [description]
+**Command**: [command]
+**Sub-Agents**: [agents spawned]
 
-### Files
+### Files Created
 - [list]
 
 ### Next Steps
