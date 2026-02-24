@@ -5,122 +5,81 @@ description: Use `just` to save and run project-specific commands. Use when the 
 
 # Just Command Runner
 
-[GitHub Repository](https://github.com/casey/just)
+## Pre-Flight
 
-`just` is a handy way to save and run project-specific commands. It's a command runner, not a build system, avoiding much of `make`'s complexity.
+Before running or creating recipes, **always read the project justfile first**:
+- Read `.claude/justfile` to see available modules and cross-skill recipes
+- Run `just --list` from `.claude/` to see all top-level recipes
+- Run `just <module>` to list recipes within a module (e.g. `just research`)
 
-## Instructions
+## Project Justfile
 
-### Prerequisites
+The project justfile lives at `.claude/justfile`. It uses `mod` to import skill modules, each with their own `skill.just`. Run all recipes from the `.claude/` directory.
 
-- `just` must be installed: `brew install just`
-- Commands are stored in a `justfile` (or `Justfile`).
+### Modules
 
-#### Common Settings (`set ...`)
+| Module | Path | What it does |
+|--------|------|-------------|
+| `api` | `skills/api-generator/skill.just` | Hono + Cloudflare Workers API generation |
+| `lighthouse` | `skills/lighthouse/skill.just` | Performance, a11y, SEO audits |
+| `playwright` | `skills/playwright-bowser/skill.just` | Browser automation, QA, workflows |
+| `research` | `skills/research/skill.just` | Web research with orchestrated agent teams |
+| `sdk` | `skills/sdk-generator/skill.just` | TypeScript/Python SDK generation |
+| `seo` | `skills/seo/skill.just` | Full SEO implementation |
+| `vite` | `skills/vite-cloudflare/skill.just` | Vite + React + Cloudflare apps |
 
-You can configure `just` behavior at the top of your `justfile`:
-- `set shell := ["bash", "-c"]`: Change the default shell.
-- `set dotenv-load`: Automatically load `.env` files.
-- `set allow-duplicate-recipes`: Allow overriding recipes.
-- `set fallback`: Search for `justfile` in parent directories.
-- `set quiet`: Don't echo commands by default.
+### Cross-Skill Recipes (mprocs)
 
-## Example Justfiles
+| Recipe | What it does |
+|--------|-------------|
+| `research-and-audit <url> <topic>` | Research + Lighthouse in parallel |
+| `project-setup <name>` | API + frontend + SEO in parallel |
+| `api-and-sdk <name>` | Build API then generate SDK |
+| `audit-batch <url1> <url2> ...` | Lighthouse audit multiple URLs |
 
-For complete reference, see these templates:
-- [Node.js + Docker](examples/node-docker.just)
-- [Python + Venv](examples/python-venv.just)
-- [Bun + TypeScript](examples/bun-typescript.just)
-- [Astral UV + Python](examples/uv-python.just)
-- [Multi-Module / Advanced](examples/multi-module.just)
+## How to Route User Requests
 
-## Workflow
+When the user asks for something, map it to the right module and recipe:
 
-1. **Create a `justfile`**:
-   Define recipes at the top level of your project. **Always include a `default` recipe that lists available commands:**
-   ```just
-   default:
-     @just --list
-   ```
-   ```just
-   # The default recipe (runs when calling `just` with no args)
-   default:
-     just --list
+| User says | Run |
+|-----------|-----|
+| "research X" | `just research topic X` |
+| "deep research X" | `just research deep X` |
+| "quick lookup on X" | `just research quick X` |
+| "research X, Y, and Z" | `just research batch "X\|Y\|Z"` |
+| "audit this site" | `just lighthouse audit <url>` |
+| "audit these 5 sites" | `just audit-batch <url1> <url2> ...` |
+| "build an API for X" | `just api build X` |
+| "add a users endpoint" | `just api add-route users` |
+| "generate SDK for X" | `just sdk build <source> X` |
+| "build me an app" | `just vite build-app <name>` |
+| "add a feature" | `just vite add-feature <name>` |
+| "set up SEO" | `just seo all` |
+| "run SEO meta tags" | `just seo meta` |
+| "browse this page" | `just playwright skill <prompt>` |
+| "QA test this" | `just playwright qa <prompt>` |
+| "build full project" | `just project-setup <name>` |
+| "build API and SDK" | `just api-and-sdk <name>` |
 
-   # A basic recipe
-   test:
-     cargo test
+## Coordination Model
 
-   # A recipe with parameters
-   build target:
-     echo "Building {{target}}..."
-     cc main.c -o {{target}}
-   ```
+- **Single agent** — one Claude instance, no coordination needed
+- **Teams** (`CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1`) — agents that talk to each other via `SendMessage` and `TaskList`. Used when agents within one workstream need to coordinate (e.g. research orchestrator managing 3 workers).
+- **mprocs** — terminal multiplexer for running independent workstreams in parallel. Each pane is a separate Claude instance. Used when tasks don't need to communicate (e.g. researching 3 different topics, or auditing 5 URLs).
+- **Teams inside mprocs** — the most powerful pattern. Each mprocs pane runs an orchestrated team. Multiple coordinated workstreams running in parallel.
 
-2. **Run Recipes**:
-   - Run the default recipe: `just`
-   - Run a specific recipe: `just <recipe>`
-   - Pass arguments to a recipe: `just build my-app`
-   - List all available recipes: `just --list`
+## Adding New Recipes
 
-3. **Advanced Features**:
-   - **Dependencies**: `test: build` (runs `build` before `test`).
-   - **Shebang Recipes**: Use other languages like Python or Node inside a recipe.
-     ```just
-     python-task:
-       #!/usr/bin/env python3
-       print("Hello from Python!")
-     ```
-   - **Dotenv**: `set dotenv-load` at the top of the file to load `.env`.
+When adding a recipe to any `skill.just`:
 
-## Examples
+1. Use `+args` (not `args`) for multi-word parameters
+2. Add a `#` comment above each recipe (shows in `just --list`)
+3. Multi-agent recipes should depend on `ensure-mprocs`
+4. Use shebang `#!/usr/bin/env bash` for multi-line recipes
+5. Generate mprocs YAML via `mktemp` and clean up after
 
-### Example 1: Standard Development Justfile
+## Reference
 
-User request:
-```
-Create a justfile for my Node project to handle lint, test, and dev
-```
-
-You would:
-1. Create a `justfile`:
-   ```just
-   default:
-     @just --list
-
-   lint:
-     npm run lint
-
-   test:
-     npm test
-
-   dev:
-     npm run dev
-   ```
-2. Tell the user they can now run `just dev` or `just test`.
-
-### Example 2: Recipe with Parameters
-
-User request:
-```
-Add a recipe to just to deploy to a specific environment
-```
-
-You would:
-1. Edit the `justfile`:
-   ```just
-   deploy env:
-     echo "Deploying to {{env}}..."
-     ./scripts/deploy.sh --target {{env}}
-   ```
-2. Inform the user they can run `just deploy production`.
-
-### Example 3: Listing Recipes
-
-User request:
-```
-What commands are available in this project?
-```
-
-You would:
-1. Run `just --list` to see available recipes and their comments.
+- [just docs](https://github.com/casey/just)
+- [mprocs docs](https://github.com/pvolok/mprocs)
+- Install mprocs: `.claude/setup/install-mprocs.sh`

@@ -20,3 +20,83 @@ mod vite 'skills/vite-cloudflare/skill.just'
 # List available commands
 default:
     @just --list
+
+# ─── mprocs helper ────────────────────────────────────────
+
+[private]
+ensure-mprocs:
+    #!/usr/bin/env bash
+    command -v mprocs &>/dev/null || .claude/setup/install-mprocs.sh
+
+# ─── Cross-skill (mprocs) ────────────────────────────────
+# Run different skills in parallel — mprocs gives you a pane per workstream
+
+# Research + Lighthouse audit in parallel
+research-and-audit url topic: ensure-mprocs
+    #!/usr/bin/env bash
+    mkdir -p ./research
+    cfg=$(mktemp /tmp/cross-XXXX.yaml)
+    cat > "$cfg" <<YAML
+    procs:
+      research:
+        shell: "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1 claude --dangerously-skip-permissions --model opus 'Use a @research-orchestrator to research: {{topic}}'"
+        cwd: "$(pwd)"
+      lighthouse:
+        shell: "claude --dangerously-skip-permissions --model opus '/lighthouse:lighthouse audit {{url}}'"
+        cwd: "$(pwd)"
+    YAML
+    mprocs --config "$cfg"
+    rm -f "$cfg"
+
+# Full project setup — API + frontend + SEO in parallel
+project-setup name +args="": ensure-mprocs
+    #!/usr/bin/env bash
+    cfg=$(mktemp /tmp/project-XXXX.yaml)
+    cat > "$cfg" <<YAML
+    procs:
+      api:
+        shell: "claude --dangerously-skip-permissions --model opus '/api:api-generator build {{name}} {{args}}'"
+        cwd: "$(pwd)"
+      frontend:
+        shell: "claude --dangerously-skip-permissions --model sonnet '/vite:vite-cloudflare build-app {{name}}'"
+        cwd: "$(pwd)"
+      seo:
+        shell: "claude --dangerously-skip-permissions --model opus '/seo:seo all'"
+        cwd: "$(pwd)"
+        autostart: false
+    YAML
+    mprocs --config "$cfg"
+    rm -f "$cfg"
+
+# Build API + generate SDK from it in parallel
+api-and-sdk name +args="": ensure-mprocs
+    #!/usr/bin/env bash
+    cfg=$(mktemp /tmp/api-sdk-XXXX.yaml)
+    cat > "$cfg" <<YAML
+    procs:
+      api:
+        shell: "claude --dangerously-skip-permissions --model opus '/api:api-generator build {{name}} {{args}}'"
+        cwd: "$(pwd)"
+      sdk:
+        shell: "claude --dangerously-skip-permissions --model opus '/api:sdk-generator build ./{{name}} {{name}}-sdk'"
+        cwd: "$(pwd)"
+        autostart: false
+    YAML
+    mprocs --config "$cfg"
+    rm -f "$cfg"
+
+# Batch lighthouse audit — multiple URLs in parallel
+audit-batch +urls: ensure-mprocs
+    #!/usr/bin/env bash
+    cfg=$(mktemp /tmp/audit-batch-XXXX.yaml)
+    procs="procs:"
+    for url in {{urls}}; do
+      slug=$(echo "$url" | sed 's|https\?://||;s|/.*||;s|\.|-|g' | head -c 20)
+      procs="$procs
+      $slug:
+        shell: \"claude --dangerously-skip-permissions --model opus '/lighthouse:lighthouse audit $url'\"
+        cwd: \"$(pwd)\""
+    done
+    echo "$procs" > "$cfg"
+    mprocs --config "$cfg"
+    rm -f "$cfg"
