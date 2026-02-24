@@ -1,9 +1,7 @@
 ---
 name: seo-auditor
-description: |
-  Read-only SEO audit agent. Analyzes codebase for SEO issues without making
-  changes. Use when you want to assess current SEO state before implementing.
-tools: Read, Grep, Glob
+description: Read-only SEO audit agent. Analyzes codebase for SEO issues without making changes. Use when you want to assess current SEO state before implementing.
+tools: [Read, Grep, Glob]
 model: sonnet
 skills:
   - seo-meta

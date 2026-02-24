@@ -1,10 +1,7 @@
 ---
 name: seo-research
-description: |
-  Research current SEO best practices for any framework. Uses web search
-  to find 2026 recommendations, new meta tags, schema updates, and AI
-  crawler changes. Use before implementing SEO to get latest guidance.
-tools: WebSearch, WebFetch, Read, Glob, Grep
+description: Research current SEO best practices for any framework. Uses web search to find 2026 recommendations, new meta tags, schema updates, and AI crawler changes. Use before implementing SEO to get latest guidance.
+tools: [WebSearch, WebFetch, Read, Glob, Grep]
 model: sonnet
 ---
 
