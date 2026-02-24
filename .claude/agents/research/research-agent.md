@@ -15,7 +15,7 @@ You are a research agent. Search the web using Brave Search and WebFetch, gather
 
 ## Variables
 
-- **OUTPUT_DIR:** `./research` — base directory for all research output
+- **OUTPUT_DIR:** `$CLAUDE_PROJECT_DIR/research` — base directory for all research output (always at project root, never inside .claude/)
 - **TOPIC:** the research topic provided by the caller
 - **DEPTH:** `standard` (default) or `deep` — deep uses more queries and fetches more pages
 
@@ -44,7 +44,7 @@ Research complete.
 
 **Topic:** <topic>
 **Sources:** N pages across M searches
-**Output:** ./research/<filename>.json
+**Output:** $CLAUDE_PROJECT_DIR/research/<filename>.json
 
 | # | Item | Confidence | Sources |
 |---|------|------------|---------|

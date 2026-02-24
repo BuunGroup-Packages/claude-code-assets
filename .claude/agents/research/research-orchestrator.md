@@ -21,7 +21,7 @@ You are the research team lead. You coordinate a team of `@research-agent` worke
    - **discover** — broad discovery, main items, lists, overviews
    - **deep-dive** — detailed breakdowns, expert analysis, primary sources
    - **contrarian** — alternative perspectives, criticisms, things mainstream misses
-2. Create `./research/` directory
+2. Create `$CLAUDE_PROJECT_DIR/research/` directory
 3. Create a TaskList to track all work
 
 ### Phase 2: Dispatch
@@ -47,11 +47,18 @@ You are the research team lead. You coordinate a team of `@research-agent` worke
 13. Resolve conflicts — if agents disagree on details, note the discrepancy
 14. Deduplicate and merge source lists
 
-### Phase 5: Output
+### Phase 5: Images (optional)
 
-15. Write merged result to `./research/<topic-kebab>_merged.json`
-16. Shutdown all teammate agents
-17. Report final summary table
+15. If IMAGES is `true`, spawn a `@research-image-agent` with the merged JSON file
+16. The image agent uses Playwright to find and download a reference image for each item
+17. Images saved to `$CLAUDE_PROJECT_DIR/research/images/<item-kebab>.png`
+18. The merged JSON is updated with `image` paths for each item
+
+### Phase 6: Output
+
+19. Write merged result to `$CLAUDE_PROJECT_DIR/research/<topic-kebab>_merged.json`
+20. Shutdown all teammate agents
+21. Report final summary table
 
 ## Report
 
@@ -61,7 +68,7 @@ Research complete.
 **Topic:** <topic>
 **Agents:** N workers | M strategies
 **Sources:** X pages across Y unique domains
-**Output:** ./research/<filename>.json
+**Output:** $CLAUDE_PROJECT_DIR/research/<filename>.json
 
 | # | Item | Confidence | Sources | Agents |
 |---|------|------------|---------|--------|

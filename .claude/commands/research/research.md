@@ -1,7 +1,7 @@
 ---
 model: opus
 description: Research a topic using an orchestrated team of search agents with built-in cross-validation
-argument-hint: <topic> [deep] [browser]
+argument-hint: <topic> [deep] [browser] [images]
 ---
 
 # Research
@@ -15,6 +15,7 @@ Parse `$ARGUMENTS` to extract:
 - **TOPIC:** all text minus detected keywords (required)
 - **DEPTH:** `standard` (default), `deep` if keyword present
 - **BROWSER:** `false` (default), `true` if `browser` keyword present
+- **IMAGES:** `false` (default), `true` if `images` keyword present — downloads reference images for each item
 
 ## Workflow
 
@@ -23,6 +24,7 @@ Parse `$ARGUMENTS` to extract:
 3. The orchestrator internally manages:
    - 3 `@research-agent` workers (discover, deep-dive, contrarian strategies)
    - Optional `@playwright-bowser-agent` if BROWSER is `true`
+   - Optional `@research-image-agent` if IMAGES is `true` — downloads images after merge
    - Cross-referencing and merging across all agents
    - Conflict resolution and confidence scoring
 4. Output the final summary table and file path to the user

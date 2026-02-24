@@ -26,16 +26,26 @@ quick +topic:
 topic +topic:
     CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1 claude --dangerously-skip-permissions --model opus "Use a @research-orchestrator to research: {{topic}}"
 
-# Deep research — orchestrator + browser agent
+# Research with reference images for each item
+images +topic:
+    CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1 claude --dangerously-skip-permissions --model opus "Use a @research-orchestrator to research (with images): {{topic}}"
+
+# Deep research — orchestrator + browser + images
 deep +topic:
-    CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1 claude --dangerously-skip-permissions --model opus "Use a @research-orchestrator to research (with browser support): {{topic}}"
+    CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1 claude --dangerously-skip-permissions --model opus "Use a @research-orchestrator to research (with browser support and images): {{topic}}"
+
+# ─── Image collection (standalone) ───────────────────────
+
+# Download images for an existing research JSON file
+download-images +json_path:
+    claude --dangerously-skip-permissions --model sonnet "Use a @research-image-agent to download images for: {{json_path}}"
 
 # ─── mprocs (parallel independent topics) ────────────────
 
 # Research multiple topics in parallel — each gets its own orchestrator
 batch +topics: ensure-mprocs
     #!/usr/bin/env bash
-    mkdir -p ./research
+    mkdir -p "$CLAUDE_PROJECT_DIR/research"
     cfg=$(mktemp /tmp/research-batch-XXXX.yaml)
     IFS='|' read -ra ITEMS <<< "{{topics}}"
     procs="procs:"

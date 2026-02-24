@@ -22,7 +22,7 @@ If Brave Search returns a 429 or any rate limit error, immediately fall back to 
 
 ## Output Format
 
-Return results as a JSON array written to `./research/<topic-kebab>_<8-char-uuid>.json`:
+Return results as a JSON array written to `$CLAUDE_PROJECT_DIR/research/<topic-kebab>_<8-char-uuid>.json`:
 
 ```json
 {
