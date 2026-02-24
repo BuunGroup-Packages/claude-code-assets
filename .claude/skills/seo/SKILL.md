@@ -55,7 +55,7 @@ Implement SEO by invoking the appropriate command(s). STOP after outputting the 
 4. Each edit auto-validates via PostToolUse hooks
 5. If validation fails, fix issues before proceeding
 6. For `all`, execute commands in sequence: meta, schema, ai, perf, sitemap, assets
-7. For `validate`, use the `lighthouse` skill: `npx lighthouse <URL> --preset=desktop --output json --output html --output-path=./lighthouse-report --chrome-flags="--headless --no-sandbox" --quiet`
+7. For `validate`, use the `lighthouse` skill: `mkdir -p "$CLAUDE_PROJECT_DIR/lighthouse" && npx lighthouse <URL> --preset=desktop --output json --output html --output-path=$CLAUDE_PROJECT_DIR/lighthouse/report --chrome-flags="--headless --no-sandbox" --quiet`
 8. For `assets`, run generator: `uv run "$CLAUDE_PROJECT_DIR"/.claude/hooks/seo/lib/generate_assets.py`
 9. **For Vite projects**: set up post-build prerendering (see `references/meta/vite.md`). Without it, crawlers see an empty SPA shell and all SEO work is invisible.
 10. **STOP** after outputting the final report

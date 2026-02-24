@@ -43,10 +43,11 @@ If not 200, ask user to start dev server first.
 Use `npx lighthouse` directly (from the `lighthouse` skill):
 
 ```bash
+mkdir -p "$CLAUDE_PROJECT_DIR/lighthouse"
 npx lighthouse "$URL" \
   --preset=desktop \
   --output json --output html \
-  --output-path=./lighthouse-report \
+  --output-path=$CLAUDE_PROJECT_DIR/lighthouse/report \
   --chrome-flags="--headless --no-sandbox" \
   --quiet
 ```
@@ -56,7 +57,7 @@ npx lighthouse "$URL" \
 Parse the JSON report:
 ```bash
 node -e "
-const r = require('./lighthouse-report.report.json');
+const r = require(process.env.CLAUDE_PROJECT_DIR + '/lighthouse/report.report.json');
 const c = r.categories;
 Object.keys(c).forEach(k => console.log(k + ': ' + Math.round(c[k].score * 100)));
 "

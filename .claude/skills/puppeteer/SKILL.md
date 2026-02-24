@@ -18,6 +18,7 @@ Automate Chrome programmatically via Puppeteer. Launch headless browsers, naviga
 - **Shadow DOM** — `>>>` (deep descendant) and `>>>>` (deep child) combinators
 - **Network interception** — block, modify, or mock any request
 - **Integrates with Lighthouse** — pass page to `lighthouse()` for authenticated audits
+- **OUTPUT_DIR:** `$CLAUDE_PROJECT_DIR/puppeteer` — all screenshots, PDFs, and artifacts save here (always at project root, never inside `.claude/`)
 
 ## Quick Reference
 
@@ -38,9 +39,9 @@ const title = await page.title();
 const text = await page.$eval('.el', el => el.textContent);
 const items = await page.$$eval('.item', els => els.map(e => e.textContent));
 
-// Screenshot / PDF
-await page.screenshot({ path: 'shot.png', fullPage: true });
-await page.pdf({ path: 'page.pdf', format: 'A4' });
+// Screenshot / PDF — always save to $CLAUDE_PROJECT_DIR/puppeteer/
+await page.screenshot({ path: process.env.CLAUDE_PROJECT_DIR + '/puppeteer/shot.png', fullPage: true });
+await page.pdf({ path: process.env.CLAUDE_PROJECT_DIR + '/puppeteer/page.pdf', format: 'A4' });
 
 await browser.close();
 ```

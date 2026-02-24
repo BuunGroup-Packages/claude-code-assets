@@ -35,7 +35,7 @@ budget url=default_url budget_path="./budget.json":
     claude --dangerously-skip-permissions --model opus "/lighthouse budget {{url}} {{budget_path}}"
 
 # Extract scores from JSON report
-scores report="./lighthouse-report.report.json":
+scores report="$CLAUDE_PROJECT_DIR/lighthouse/report.report.json":
     claude --dangerously-skip-permissions --model opus "/lighthouse scores {{report}}"
 
 # Batch audit multiple URLs

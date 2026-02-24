@@ -54,6 +54,22 @@ build-app +name: ensure-mprocs
     mprocs --config "$cfg"
     rm -f "$cfg"
 
+# Full app build with a UI style — applies style tokens + components
+build-styled style +name: ensure-mprocs
+    #!/usr/bin/env bash
+    cfg=$(mktemp /tmp/vite-styled-XXXX.yaml)
+    cat > "$cfg" <<YAML
+    procs:
+      frontend:
+        shell: "claude --dangerously-skip-permissions --model sonnet '/vite:vite-cloudflare build-app {{name}} with the {{style}} style'"
+        cwd: "$(pwd)"
+      api:
+        shell: "claude --dangerously-skip-permissions --model sonnet '/api:api-generator init {{name}}'"
+        cwd: "$(pwd)"
+    YAML
+    mprocs --config "$cfg"
+    rm -f "$cfg"
+
 # Add feature — parallel page + component + API via mprocs
 add-feature +name: ensure-mprocs
     #!/usr/bin/env bash

@@ -18,6 +18,7 @@ Run Google Lighthouse audits from the CLI. Produces scores for performance, acce
 - **Three output formats** — `html` (visual), `json` (machine-readable), `csv`
 - **Mobile by default** — use `--preset=desktop` for desktop scoring + emulation
 - **Token-efficient** — parse JSON output programmatically, skip verbose logs with `--quiet`
+- **OUTPUT_DIR:** `$CLAUDE_PROJECT_DIR/lighthouse` — all reports save here (always at project root, never inside `.claude/`)
 
 ## Quick Reference
 
@@ -29,13 +30,13 @@ npx lighthouse <url>
 npx lighthouse <url> --preset=desktop --view
 
 # JSON output, specific categories
-npx lighthouse <url> --only-categories=performance,seo --output json --output-path=./report.json --quiet
+npx lighthouse <url> --only-categories=performance,seo --output json --output-path=$CLAUDE_PROJECT_DIR/lighthouse/report.json --quiet
 
 # Multiple output formats at once
-npx lighthouse <url> --output json --output html --output-path=./report
+npx lighthouse <url> --output json --output html --output-path=$CLAUDE_PROJECT_DIR/lighthouse/report
 
 # CI-friendly headless
-npx lighthouse <url> --chrome-flags="--headless --no-sandbox" --output json --output-path=./report.json --quiet
+npx lighthouse <url> --chrome-flags="--headless --no-sandbox" --output json --output-path=$CLAUDE_PROJECT_DIR/lighthouse/report.json --quiet
 
 # Accessibility only
 npx lighthouse <url> --only-categories=accessibility --view
@@ -55,16 +56,17 @@ npx lighthouse <url> --save-assets
 
 ## Workflow
 
-1. **Run the audit** with appropriate flags for the task:
+1. **Create output directory** and run the audit:
 ```bash
-npx lighthouse <url> --preset=desktop --output json --output html --output-path=./lighthouse-report --quiet
+mkdir -p "$CLAUDE_PROJECT_DIR/lighthouse"
+npx lighthouse <url> --preset=desktop --output json --output html --output-path=$CLAUDE_PROJECT_DIR/lighthouse/report --quiet
 ```
 
 2. **Parse JSON results** to extract scores:
 ```bash
 # Extract category scores from JSON report
 node -e "
-const r = require('./lighthouse-report.report.json');
+const r = require('$CLAUDE_PROJECT_DIR/lighthouse/report.report.json');
 const c = r.categories;
 Object.keys(c).forEach(k => console.log(k + ': ' + Math.round(c[k].score * 100)));
 "

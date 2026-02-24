@@ -53,10 +53,10 @@ all +args="": ensure-mprocs
     cat > "$cfg" <<YAML
     procs:
       auditor:
-        shell: "claude --dangerously-skip-permissions --model sonnet 'Use a @seo-auditor to audit the current SEO state of this project. Write findings to ./seo-audit.md'"
+        shell: "claude --dangerously-skip-permissions --model sonnet 'Use a @seo-auditor to audit the current SEO state of this project. Write findings to $CLAUDE_PROJECT_DIR/seo/audit.md'"
         cwd: "$(pwd)"
       researcher:
-        shell: "claude --dangerously-skip-permissions --model sonnet 'Use a @seo-research agent to research latest SEO best practices for this project. Write findings to ./seo-research.md'"
+        shell: "claude --dangerously-skip-permissions --model sonnet 'Use a @seo-research agent to research latest SEO best practices for this project. Write findings to $CLAUDE_PROJECT_DIR/seo/research.md'"
         cwd: "$(pwd)"
       implementer:
         shell: "claude --dangerously-skip-permissions --model opus '/seo:seo all {{args}}'"

@@ -16,6 +16,20 @@ Read design system docs before creating components:
 - `.claude/skills/vite-cloudflare/docs/COLORS.md`
 - `.claude/skills/vite-cloudflare/docs/COMPONENTS.md`
 
+### Style Selection
+
+If the user specifies a UI style (e.g. `with the destroy-dark style`), read the style folder at `.claude/skills/ui-styles/<name>/`:
+1. `STYLE.md` — overview and palette
+2. `references/colors.md` — color tokens
+3. `references/typography.md` — font system
+4. `references/components.md` — component CSS patterns
+5. `references/animations.md` — motion and transitions
+6. `references/effects.md` — (if exists) glassmorphism, gradients, glows
+
+Use these **instead of** the default design docs above. Generate `tokens.css` and `animations.css` from the style's definitions.
+
+Available styles: `destroy-dark`, `modern`, `brutalist`, `corporate` (see `.claude/skills/ui-styles/SKILL.md`)
+
 ## Commands
 
 | Command | Reference | Model | Description |

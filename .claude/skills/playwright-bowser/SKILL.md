@@ -17,6 +17,7 @@ Automate browsers using `playwright-cli` — a token-efficient CLI for Playwrigh
 - **Persistent profiles** — cookies and storage state preserved between calls
 - **Token-efficient** — CLI-based, no accessibility trees or tool schemas in context
 - **Vision mode** (opt-in) — set `PLAYWRIGHT_MCP_CAPS=vision` to receive screenshots as image responses in context instead of just saving to disk
+- **OUTPUT_DIR:** `$CLAUDE_PROJECT_DIR/playwright` — all screenshots, PDFs, and artifacts save here (always at project root, never inside `.claude/`)
 
 ## Sessions
 
@@ -81,10 +82,10 @@ playwright-cli type "text"
 playwright-cli press Enter
 ```
 
-5. Capture results:
+5. Capture results (save to `$CLAUDE_PROJECT_DIR/playwright/`):
 ```bash
-playwright-cli screenshot
-playwright-cli screenshot --filename=output.png
+mkdir -p "$CLAUDE_PROJECT_DIR/playwright"
+playwright-cli screenshot --filename=$CLAUDE_PROJECT_DIR/playwright/output.png
 ```
 
 6. **Always close the session when done.** This is not optional — close the named session after finishing your task:
@@ -103,7 +104,7 @@ If a `playwright-cli.json` exists in the working directory, use it automatically
     "launchOptions": { "headless": true },
     "contextOptions": { "viewport": { "width": 1440, "height": 900 } }
   },
-  "outputDir": "./screenshots"
+  "outputDir": "$CLAUDE_PROJECT_DIR/playwright"
 }
 ```
 

@@ -7,14 +7,19 @@
 #        just seo all react
 #        just api build my-api
 #        just sdk build ./openapi.yaml my-sdk
+#        just clone full https://llamaindex.ai
+#        just styles list
 #        just vite build-app my-app
+#        just vite build-styled destroy-dark my-app
 
 mod api 'skills/api-generator/skill.just'
+mod clone 'skills/ui-clone/skill.just'
 mod lighthouse 'skills/lighthouse/skill.just'
 mod playwright 'skills/playwright-bowser/skill.just'
 mod research 'skills/research/skill.just'
 mod sdk 'skills/sdk-generator/skill.just'
 mod seo 'skills/seo/skill.just'
+mod styles 'skills/ui-styles/skill.just'
 mod vite 'skills/vite-cloudflare/skill.just'
 
 # List available commands

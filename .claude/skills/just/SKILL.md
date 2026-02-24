@@ -21,6 +21,7 @@ The project justfile lives at `.claude/justfile`. It uses `mod` to import skill 
 | Module | Path | What it does |
 |--------|------|-------------|
 | `api` | `skills/api-generator/skill.just` | Hono + Cloudflare Workers API generation |
+| `clone` | `skills/ui-clone/skill.just` | Clone a website's design system into a ui-styles preset |
 | `lighthouse` | `skills/lighthouse/skill.just` | Performance, a11y, SEO audits |
 | `playwright` | `skills/playwright-bowser/skill.just` | Browser automation, QA, workflows |
 | `research` | `skills/research/skill.just` | Web research with orchestrated agent teams |
@@ -52,6 +53,8 @@ When the user asks for something, map it to the right module and recipe:
 | "build an API for X" | `just api build X` |
 | "add a users endpoint" | `just api add-route users` |
 | "generate SDK for X" | `just sdk build <source> X` |
+| "clone this site's style" | `just clone full <url>` |
+| "quick clone of this site" | `just clone quick <url>` |
 | "build me an app" | `just vite build-app <name>` |
 | "add a feature" | `just vite add-feature <name>` |
 | "set up SEO" | `just seo all` |
